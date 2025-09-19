@@ -1,0 +1,176 @@
+{
+  "name": "ArunGovil 2.0",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -32
+      ],
+      "id": "26a5081d-e0e2-4a95-a67e-044acb7c0e8a",
+      "name": "Telegram Trigger",
+      "webhookId": "c1ea78ec-9473-4944-aeef-d46958baa8ae",
+      "credentials": {
+        "telegramApi": {
+          "id": "GiwLdhF8KiTyYkLF",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bebeb1db-42bb-424f-8a35-38cc5be8b37f",
+              "name": "message.from.id",
+              "value": "={{ $json.message.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "eb8ce735-9291-4ea9-9516-c9f008cfaa9e",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        -32
+      ],
+      "id": "21c03bc8-4b15-4f93-9e61-91192738474b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a personal assistant,that helps users fulfill their requests.\nWhen you are asked to perform a task on the same date and time, make sure you give the answer on that same date and time. {{ $now }}\n\n\nAnd you should answer politely and respectfully to whatever you are asked and give no unnecessary details.\n\nYou may ask or question them for further things related to what the question has been asked, that they might like to know.\n\nif there is anything related to schedule, events or calender,\nyou have to use 'calendar_flow_agent' to call the separate workflow with detailed 'text' (time is {{ $now }}) so that it can work on the query effectively."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        -32
+      ],
+      "id": "2c275b26-34c2-4712-89c3-fe21d3017d2d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        176
+      ],
+      "id": "f162a6d8-7f87-4f6c-aee4-745c74b173ca",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NPt5H3xIn3Hf7DfE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        -32
+      ],
+      "id": "59455ba3-2d5f-4d7c-b8e5-8d68cc91b20d",
+      "name": "Send a text message",
+      "webhookId": "786d8680-7cb1-4ffa-be37-1d5f3dcdf837",
+      "credentials": {
+        "telegramApi": {
+          "id": "GiwLdhF8KiTyYkLF",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "31767578-8c5d-453d-bf40-98bfcfe23caf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "697b4b706b403af9b5d47df97739ddbb2c2b2da1c7cffcc80e709752cacf14c6"
+  },
+  "id": "xWvrrvSelJs5OJ1t",
+  "tags": []
+}
